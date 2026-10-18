@@ -61,9 +61,7 @@ namespace TP5ProgramacionMovil.Controllers
                     Fecha = v.Fecha,
                     Total = v.Total,
                     NombreCliente = v.Cliente.Nombre,
-
-                    // Temporal hasta integrar completamente JWT
-                    NombreUsuario = "Admin",
+                    NombreUsuario = v.Usuario.Nombre,
 
                     Detalles = v.Detalles.Select(d => new DetalleVentaResponseDto
                     {

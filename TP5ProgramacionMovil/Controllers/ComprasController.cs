@@ -1,4 +1,4 @@
-﻿
+﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -8,7 +8,7 @@ using TP5ProgramacionMovil.Models;
 
 namespace TP5ProgramacionMovil.Controllers
 {
-    [Authorize] // Requiere autenticación para acceder a este controlador
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class ComprasController : ControllerBase
@@ -160,14 +160,25 @@ namespace TP5ProgramacionMovil.Controllers
                 });
             }
 
+            var usuarioIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(usuarioIdString) ||
+                !int.TryParse(usuarioIdString, out int usuarioId))
+            {
+                return Unauthorized(new
+                {
+                    mensaje = "Token inválido o usuario no identificado."
+                });
+            }
+
             var usuario = await _context.Usuarios
-                .FirstOrDefaultAsync(u => u.Id == dto.UsuarioId);
+                .FirstOrDefaultAsync(u => u.Id == usuarioId);
 
             if (usuario == null)
             {
-                return BadRequest(new
+                return Unauthorized(new
                 {
-                    mensaje = "El usuario indicado no existe."
+                    mensaje = "El usuario autenticado no existe."
                 });
             }
 
@@ -179,7 +190,7 @@ namespace TP5ProgramacionMovil.Controllers
                 var compra = new Compra
                 {
                     ProveedorId = dto.ProveedorId,
-                    UsuarioId = dto.UsuarioId,
+                    UsuarioId = usuarioId,
                     Fecha = DateTime.Now,
                     Total = 0
                 };
