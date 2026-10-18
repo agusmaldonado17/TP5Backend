@@ -7,6 +7,7 @@ using System.Text;
 using TP5ProgramacionMovil.Data;
 using TP5ProgramacionMovil.DTOs;
 using TP5ProgramacionMovil.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace TP5ProgramacionMovil.Controllers
 {
@@ -24,9 +25,10 @@ namespace TP5ProgramacionMovil.Controllers
         }
 
         [HttpPost("Registro")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Registro(RegistroRequestDto registroDto)
         {
-            // 1. Validar que el rol ingresado sea correcto
+
             var rolesPermitidos = new[] { "Admin", "Vendedor", "Cliente" };
 
             if (!rolesPermitidos.Contains(registroDto.Rol))

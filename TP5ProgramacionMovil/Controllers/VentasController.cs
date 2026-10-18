@@ -8,7 +8,7 @@ using TP5ProgramacionMovil.Models;
 
 namespace TP5ProgramacionMovil.Controllers
 {
-    [Authorize] // Requiere autenticación para acceder a este controlador
+    [Authorize(Roles = "Admin,Vendedor")]
     [Route("api/[controller]")]
     [ApiController]
     public class VentasController : ControllerBase

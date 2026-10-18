@@ -8,9 +8,10 @@ using TP5ProgramacionMovil.Models;
 
 namespace TP5ProgramacionMovil.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     [ApiController]
     [Route("api/[controller]")]
+
     public class ComprasController : ControllerBase
     {
         private readonly DataContext _context;
