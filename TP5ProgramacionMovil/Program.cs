@@ -5,8 +5,12 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using System.Text;
 using TP5ProgramacionMovil.Data;
+using QuestPDF.Infrastructure;
+using TP5ProgramacionMovil.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+QuestPDF.Settings.License = LicenseType.Community;
+
 
 // 1. Configuración de JWT
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -30,6 +34,9 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 // Registrar el DataContext para usar SQL Server
 builder.Services.AddDbContext<DataContext>(options =>
     options.UseSqlServer(connectionString));
+
+builder.Services.AddScoped<IReportePdfService, ReportePdfService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 // Controladores
 builder.Services.AddControllers();
@@ -63,6 +70,7 @@ builder.Services.AddCors(options =>
             .AllowAnyHeader();
     });
 });
+
 var app = builder.Build();
 
 // Swagger en entorno de produccion
