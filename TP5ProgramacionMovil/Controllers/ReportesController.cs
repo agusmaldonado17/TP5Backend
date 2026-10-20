@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using TP5ProgramacionMovil.Data;
 using TP5ProgramacionMovil.DTOs;
 using TP5ProgramacionMovil.Services;
+using System.Security.Claims;
 
 namespace TP5ProgramacionMovil.Controllers
 {
@@ -47,6 +48,16 @@ namespace TP5ProgramacionMovil.Controllers
                     _reportePdfService
                         .GenerarReporteStock(productos);
 
+                var usuario =
+                     User.FindFirstValue(ClaimTypes.Name)
+                     ?? "Usuario desconocido";
+
+                _logger.LogInformation(
+                    "AUDITORIA - Reporte de stock generado. Usuario={Usuario}, CantidadProductos={CantidadProductos}",
+                    usuario,
+                    productos.Count
+                );
+
                 return File(
                     pdf,
                     "application/pdf",
@@ -84,6 +95,16 @@ namespace TP5ProgramacionMovil.Controllers
                     _reportePdfService
                         .GenerarReporteVentas(ventas);
 
+                var usuario =
+                   User.FindFirstValue(ClaimTypes.Name)
+                   ?? "Usuario desconocido";
+
+                _logger.LogInformation(
+                    "AUDITORIA - Reporte de ventas generado. Usuario={Usuario}, CantidadVentas={CantidadVentas}",
+                    usuario,
+                    ventas.Count
+                );
+
                 return File(
                     pdf,
                     "application/pdf",
@@ -120,6 +141,16 @@ namespace TP5ProgramacionMovil.Controllers
                 var pdf =
                     _reportePdfService
                         .GenerarReporteEntradas(compras);
+
+                var usuario =
+                    User.FindFirstValue(ClaimTypes.Name)
+                    ?? "Usuario desconocido";
+
+                _logger.LogInformation(
+                    "AUDITORIA - Reporte de entradas generado. Usuario={Usuario}, CantidadEntradas={CantidadEntradas}",
+                    usuario,
+                    compras.Count
+                );
 
                 return File(
                     pdf,
@@ -238,6 +269,17 @@ namespace TP5ProgramacionMovil.Controllers
                     "Se adjunta el reporte solicitado desde el Sistema de Ventas.",
                     pdf,
                     nombreArchivo
+                );
+
+                var usuario =
+                   User.FindFirstValue(ClaimTypes.Name)
+                   ?? "Usuario desconocido";
+
+                _logger.LogInformation(
+                    "AUDITORIA - Reporte enviado por correo. Usuario={Usuario}, TipoReporte={TipoReporte}, Destinatario={Destinatario}",
+                    usuario,
+                    dto.TipoReporte,
+                    dto.Email
                 );
 
 

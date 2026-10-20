@@ -13,11 +13,16 @@ namespace TP5ProgramacionMovil.Controllers
     [ApiController]
     public class VentasController : ControllerBase
     {
-        private readonly DataContext _context;
 
-        public VentasController(DataContext context)
+        private readonly DataContext _context;
+        private readonly ILogger<VentasController> _logger;
+
+        public VentasController(
+            DataContext context,
+            ILogger<VentasController> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         // GET: api/Ventas?pagina=1&tamanoPagina=10&buscar=cliente&ordenarPor=fecha_desc
@@ -129,6 +134,19 @@ namespace TP5ProgramacionMovil.Controllers
 
             _context.Ventas.Add(nuevaVenta);
             await _context.SaveChangesAsync();
+
+            var usuarioNombre =
+                User.FindFirstValue(ClaimTypes.Name)
+                 ?? "Usuario desconocido";
+    
+            _logger.LogInformation(
+                "AUDITORIA - Venta registrada. VentaId={VentaId}, UsuarioId={UsuarioId}, Usuario={Usuario}, ClienteId={ClienteId}, Total={Total}",
+                nuevaVenta.Id,
+                usuarioId,
+                usuarioNombre,
+                nuevaVenta.ClienteId,
+                nuevaVenta.Total
+            );
 
             return StatusCode(201, new { Mensaje = "Venta registrada con éxito", VentaId = nuevaVenta.Id, Total = nuevaVenta.Total });
         }

@@ -7,10 +7,15 @@ using System.Text;
 using TP5ProgramacionMovil.Data;
 using QuestPDF.Infrastructure;
 using TP5ProgramacionMovil.Services;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 QuestPDF.Settings.License = LicenseType.Community;
 
+builder.Host.UseSerilog((context, configuration) =>
+    configuration
+        .ReadFrom.Configuration(context.Configuration)
+        .Enrich.FromLogContext());
 
 // 1. Configuración de JWT
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -98,6 +103,7 @@ if (!Directory.Exists(uploadsPath))
     Directory.CreateDirectory(uploadsPath);
 }
 
+app.UseSerilogRequestLogging();
 app.UseAuthentication();
 app.UseAuthorization();
 

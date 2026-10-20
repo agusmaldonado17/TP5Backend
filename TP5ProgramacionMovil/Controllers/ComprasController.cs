@@ -15,10 +15,14 @@ namespace TP5ProgramacionMovil.Controllers
     public class ComprasController : ControllerBase
     {
         private readonly DataContext _context;
+        private readonly ILogger<ComprasController> _logger;
 
-        public ComprasController(DataContext context)
+        public ComprasController(
+            DataContext context,
+            ILogger<ComprasController> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         // GET: api/Compras?pagina=1&tamanoPagina=10&buscar=proveedor&ordenarPor=fecha_desc
@@ -251,6 +255,19 @@ namespace TP5ProgramacionMovil.Controllers
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
+                var usuarioNombre =
+                    User.FindFirstValue(ClaimTypes.Name)
+                    ?? "Usuario desconocido";
+
+                _logger.LogInformation(
+                    "AUDITORIA - Entrada de mercadería registrada. CompraId={CompraId}, UsuarioId={UsuarioId}, Usuario={Usuario}, ProveedorId={ProveedorId}, Total={Total}",
+                    compra.Id,
+                    usuarioId,
+                    usuarioNombre,
+                    compra.ProveedorId,
+                    compra.Total
+                );
+
                 return CreatedAtAction(
                     nameof(GetCompra),
                     new { id = compra.Id },
@@ -262,9 +279,17 @@ namespace TP5ProgramacionMovil.Controllers
                     }
                 );
             }
-            catch
+            catch (Exception ex)
             {
                 await transaction.RollbackAsync();
+
+                _logger.LogError(
+                    ex,
+                    "Error al registrar entrada de mercadería. UsuarioId={UsuarioId}, ProveedorId={ProveedorId}",
+                    usuarioId,
+                    dto.ProveedorId
+                );
+
                 throw;
             }
         }
